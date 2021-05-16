@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +18,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.frisbeeworld.chatterbox.R;
 import com.frisbeeworld.chatterbox.databinding.FragmentHomeBinding;
+
+import java.util.List;
 
 public class HomeFragment extends Fragment {
 
@@ -45,6 +49,18 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        final ListView listView = binding.listChats;
+        homeViewModel.getChatPosts().observe(getViewLifecycleOwner(), new Observer<List<String>>() {
+            // update UI
+            @Override
+            public void onChanged(@Nullable List<String> l) {
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(listView.getContext(),
+                        android.R.layout.simple_list_item_1, android.R.id.text1, l);
+                listView.setAdapter(adapter);
+            }
+        });
+
+
         final Button postButton = binding.btnPost;
         postButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,11 +68,14 @@ public class HomeFragment extends Fragment {
                 String myName = nameView.getText().toString();
                 String message = messageView.getText().toString();
 
-                String toasty = "Thanks " + myName + " for posting: " +
-                        message;
-                Toast.makeText(getContext(), toasty, Toast.LENGTH_SHORT).show();
+                homeViewModel.addChatPost(myName, message);
             }
         });
+
+
+
+
+
         return root;
     }
 
